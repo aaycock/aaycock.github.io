@@ -54,7 +54,7 @@
     }
   }
 
-  level = getSetting('level', window.location.search || '?level=hard');
+  level = getSetting('levels', window.location.search || '?level=hard');
   if(!levelMap[level]) {
     level = 'medium';
   }
