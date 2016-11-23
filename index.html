@@ -4,41 +4,21 @@
     <h1>Your favorite tech company is:</h1>
     <div>
       <img id="logo" style="max-width:150px;height:auto" />
+      <div id="name-container">
+        <div>Congratulations: <span id='person-name'>[YOUR FIRST NAME AND LAST NAME GOES HERE]!</span></div>
+        <div>Your favorite company is <span id='company-name'></span></div>
+      </div>
     </div>
   </div>
 </body>
 <script>
-  /* NOTE: delete any comments below surrouded by multi-line comments such as this */
-
   var companyLogos = {
-    facebook: 'images/facebook.jpeg',
-    useriq: 'images/useriq.png'
+    Facebook: 'images/facebook.jpeg',
+    UserIQ: 'images/useriq.png'
   }
-
-  CompanySelector = function() {
-    this.logo = 'ZmFjZWJvb2soKQ==';
-
-    /* decode example desired input = `dXNlcmlxX18=` (decoded = `useriq__`) */
-    this.decodeString = function(encodedText) {
-      var decoded = EncodingLibrary.decode(encodedText)
-      return decoded.substring(0,decoded.length-2)
-    }
-  }
-
-  CompanySelector.prototype.confirmCheck = function(key, settings) {
-    // Make sure we don't include the normal '?' in the settings
-    /* obviously the '?' is typically in the query string, not the hash */
-    var settings = settings.substring(1).split('&')
-    while (settings.length && !key) {
-
-    }
-  }
-
-  cs = new CompanySelector()
-  logo = cs.decodeString(cs.logo)
-  document.getElementById('logo').src = companyLogos[logo]
 
   // RFC 4648
+  // Library to encode text
   var EncodingLibrary = {
     // private property
     _keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
@@ -53,7 +33,6 @@
       input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
 
       while (i < input.length) {
-
         enc1 = this._keyStr.indexOf(input.charAt(i++));
         enc2 = this._keyStr.indexOf(input.charAt(i++));
         enc3 = this._keyStr.indexOf(input.charAt(i++));
@@ -73,21 +52,16 @@
         }
 
       }
-
       output = EncodingLibrary._utf8_decode(output);
       return output;
-
     },
 
     // private method for UTF-8 encoding
     _utf8_encode : function (string) {
       string = string.replace(/\r\n/g,"\n");
       var utftext = "";
-
       for (var n = 0; n < string.length; n++) {
-
         var c = string.charCodeAt(n);
-
         if (c < 128) {
           utftext += String.fromCharCode(c);
         }
@@ -100,9 +74,7 @@
           utftext += String.fromCharCode(((c >> 6) & 63) | 128);
           utftext += String.fromCharCode((c & 63) | 128);
         }
-
       }
-
       return utftext;
     },
 
@@ -133,92 +105,102 @@
     }
   }
 
-  // *****************************************
-  // DELETE: TACO CHALLENGE
-  // levelMap = {
-  //   'easy': 1,
-  //   'medium': .1,
-  //   'hard': .001
-  // }
-  //
-  // getSetting = function(key, settings) {
-  //   settings = settings.split("&")
-  //   for(i = 0; i<settings.length; i++){
-  //     setting = settings[i];
-  //     // Make sure there isn't weird stuff in the settings, if it's longer
-  //     // than we want just ignore it
-  //     if(setting.length <= 'level=medium'.length) {
-  //       if(setting.indexOf(key)) {
-  //         return setting.substr(setting.indexOf(key) + key.length + 1);
-  //       }
-  //     }
-  //   }
-  //   return 'hard';
-  // }
-  //
-  // validate = function(name, checksum) {
-  //   var string = name + "approved by Taco";
-  //   var testsum = 123;
-  //
-  //   for(var i = 0; i<string.length; i++) {
-  //     testsum = testsum * 13 + string.charCodeAt(i);
-  //     while(testsum > 10000000) {
-  //       testsum -= 1000000;
-  //     }
-  //   }
-  //
-  //   return testsum == checksum;
-  // }
-  //
-  // checksum = 'NOT APPROVED';
-  //
-  // // Run until we've processed the whole hash
-  // while(location.hash.length > 1 && !name) {
-  //   entries = location.hash.split('|');
-  //   for(i = 0; i<entries.length; i++) {
-  //     parts = entries[i].split('=');
-  //     name = decodeURIComponent(parts[0]);
-  //     value = decodeURIComponent(parts[1]);
-  //     if(name == 'checksum') {
-  //       checksum = value;
-  //     }
-  //   }
-  // }
-  //
-  // level = getSetting('level', window.location.search || '?level=hard');
-  // if(!levelMap[level]) {
-  //   level = 'medium';
-  // }
-  //
-  // CandidateChooser = {
-  //   name: "Taco Spolsky",
-  //   recommend: function(e) {
-  //     if(e.target.id != 'choose') {
-  //       return;
-  //     }
-  //
-  //     random = Math.random();
-  //     if(random < levelMap[level]) {
-  //       this.name = "Taco Spolsky";
-  //     } else if(random > levelMap[level]) {
-  //       this.name = "Taco Spolsky";
-  //     } else if(random == levelMap[level]) {
-  //       this.name = "Taco Spolsky";
-  //     }
-  //
-  //     // This was code used for the demo
-  //     // this.name = "Joel Spolsky";
-  //
-  //     if(this.name != "Taco Spolsky") {
-  //       if(!validate(this.name, checksum)) {
-  //         this.name = "Taco Spolsky";
-  //       }
-  //     }
-  //     document.getElementById('candidate').textContent = this.name;
-  //   }
-  // }
-  //
-  // window.addEventListener('click', CandidateChooser.recommend);
-  // *****************************************
+
+  CompanySelector = function() {
+    this.delimiter = '|'
+    this.defaultlogo = 'RmFjZWJvb2soKQ=='
+    this.magicNumber = 19
+    this.position = null
+
+    this.multiplier = (function() {
+      return function(n, f) {
+        f = f || []
+        if (typeof n !== 'number') return null
+        if (n == 0 || n == 1) return 1
+        if (f[n] > 0) return f[n]
+        return f[n] = arguments.callee(n-1, f) * n
+      }
+    })()
+
+    this.decodeString = function(encodedText) {
+      var decoded = EncodingLibrary.decode(encodedText)
+      return decoded.substring(0,decoded.length-2)
+    }
+
+    this.getFavoriteCompany = function() {
+      var self = this
+      var hashArray = location.hash.split((this.delimiter.substring(0,1) + '^')[1])
+      var searchArray = window.location.search.split(this.delimiter).slice(1)
+
+      var beforePosition = true
+      var hashMap = {}
+      var _i = 0
+      while (beforePosition && !hashMap[_i]) {
+        hashMap[_i] = hashArray[_i]
+
+        if (isNaN(this.position) || _i >= this.position + 1) {
+          beforePosition = false
+        } else if (_i === 0) {
+          try {
+            this.position = parseFloat(hashMap[_i][1])
+          } catch(e) {
+            this.logo = this.defaultlogo
+            beforePosition = false
+            break
+          }
+        } else if (_i === this.position - 1) {
+          this.logo = hashMap[_i]
+        }
+        _i++
+      }
+
+      this.name = this.getPersonName(searchArray)
+
+      this.logo = (function() {
+        var logo = self.decodeString(self.logo || self.defaultlogo)
+        if (!companyLogos[logo]) logo = self.decodeString(self.defaultlogo)
+        return logo
+      })()
+
+      return this
+    }
+  }
+
+  CompanySelector.prototype.getPersonName = function(settings, key) {
+    key = key || ''
+    var value = ''
+    if (!(typeof this.position === 'number')) return null
+
+    // Make sure we don't include the normal '?' in the settings
+    while (settings.length && !key) {
+      var currentSetting = settings[0]
+      currentSetting = currentSetting.split('=')
+      key = currentSetting[0]
+      value = currentSetting[1]
+
+      if (this.multiplier(key.length) === this.multiplier('useriq'.length)) {
+        return decodeURIComponent(value.substring(this.position))
+      }
+
+      if (settings.length === 1) {
+        settings = []
+      } else {
+        settings.splice(1)
+      }
+    }
+    return null
+  }
+
+  cs = new CompanySelector().getFavoriteCompany()
+  document.getElementById('logo').src = companyLogos[cs.logo]
+
+  var nameElement = document.getElementById('person-name')
+  var companyName = document.getElementById('company-name')
+  if (cs.name) {
+    nameElement.textContent = cs.name
+    companyName.textContent = cs.logo
+  } else {
+    document.getElementById('name-container').textContent = "Sorry, we couldn't determine who you are!"
+  }
 </script>
 </html>
